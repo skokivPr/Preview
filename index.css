@@ -1,0 +1,541 @@
+/* Zmienne motywu */
+:root {
+    --bg: #f8f9fa;
+    --panel-bg: #ffffff;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --highlight-color: #ff7300;
+    --border-color: #dee2e6;
+    --card-bg: #f8f9fa;
+    --status-active-bg: #28a745;
+    --border-radius: 0px;
+    --button-bg: #f1f3f5;
+    --button-hover-bg: #e9ecef;
+    --button-primary-bg: #ff7300;
+    --button-primary-hover-bg: #e66800;
+    --button-text: #212529;
+    --button-primary-text: #ffffff;
+    --resizer-color: #dee2e6;
+    --resizer-hover-color: #ff7300;
+}
+
+:root[theme="dark"] {
+    --bg: #121212;
+    --panel-bg: #1a1a1a;
+    --text-color: #e9ecef;
+    --text-muted: #8d8d8d;
+    --highlight-color: #ff7300;
+    --border-color: #2a2a2a;
+    --card-bg: #1a1a1a;
+    --status-active-bg: var(--highlight-color);
+    --button-bg: #2a2a2a;
+    --button-hover-bg: #343a40;
+    --button-primary-bg: #ff7300;
+    --button-primary-hover-bg: #e66800;
+    --button-text: #e9ecef;
+    --button-primary-text: #ffffff;
+    --resizer-color: #2a2a2a;
+    --resizer-hover-color: #ff7300;
+}
+
+/* Ogólne style */
+body,
+html {
+    height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text-color);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    scrollbar-width: none;
+    /* Zapobiega przewijaniu całego body */
+}
+
+/* Układ */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--panel-bg);
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.header-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    /* Dopycha do prawej */
+}
+
+.content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    /* Kluczowe dla resizera */
+}
+
+.status-bar {
+    padding: 8px 16px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--panel-bg);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+/* Panele */
+.panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Pozwala na przewijanie wewnątrz paneli */
+    background-color: var(--panel-bg);
+}
+
+.editor-panel {
+    width: 50%;
+    /* Domyślna szerokość */
+    min-width: 250px;
+}
+
+.editor-panel.hidden {
+    display: none;
+}
+
+.preview-panel {
+    flex-grow: 1;
+    /* Zajmuje resztę miejsca */
+    border-left: 1px solid var(--border-color);
+    min-width: 250px;
+}
+
+.preview-panel.full-width {
+    border-left: none;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+#monacoEditorContainer {
+    flex-grow: 1;
+    height: 100%;
+    /* Ważne dla Monaco */
+    min-height: 200px;
+}
+
+#previewFrame {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: var(--bg);
+}
+
+/* Resizer (Suwak) */
+.resizer {
+    flex-basis: 5px;
+    flex-shrink: 0;
+    cursor: col-resize;
+    background-color: var(--resizer-color);
+    transition: background-color 0.1s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.resizer:hover,
+.resizer.is-dragging {
+    background-color: var(--resizer-hover-color);
+    box-shadow: 0 0 2px var(--resizer-hover-color);
+}
+
+.resizer.hidden {
+    display: none;
+}
+
+/* Wizualna linijka */
+.ruler-indicator {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--highlight-color);
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 0 2px var(--highlight-color);
+}
+
+.ruler-indicator::before {
+    content: attr(data-width);
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    background-color: var(--highlight-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 0px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ruler-indicator.active {
+    display: block;
+}
+
+/* --- Bottom Ruler --- */
+.bottom-ruler {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: var(--panel-bg);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
+    display: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.bottom-ruler.active {
+    display: block;
+    animation: slideUpRuler 0.2s ease-out;
+}
+
+.ruler-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            var(--border-color) 0%,
+            transparent 1%,
+            transparent 99%,
+            var(--border-color) 100%);
+}
+
+.ruler-marks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ruler-mark {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    background: var(--text-muted);
+    opacity: 0.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ruler-mark.major {
+    height: 20px;
+    background: var(--highlight-color);
+    width: 2px;
+    opacity: 1;
+    box-shadow: 0 0 2px rgba(255, 115, 0, 0.4);
+}
+
+.ruler-mark.minor {
+    height: 12px;
+    background: var(--text-muted);
+    opacity: 0.3;
+}
+
+.ruler-label {
+    position: absolute;
+    bottom: 2px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.ruler-mark.major .ruler-label {
+    color: var(--highlight-color);
+    font-weight: 600;
+    opacity: 1;
+    text-shadow: 0 0 2px rgba(255, 115, 0, 0.3);
+}
+
+.ruler-indicator-bottom {
+    position: absolute;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--highlight-color);
+    box-shadow: 0 0 8px rgba(255, 115, 0, 0.6);
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.ruler-indicator-bottom::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 8px solid var(--highlight-color);
+}
+
+.ruler-indicator-bottom::after {
+    content: attr(data-percentage);
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--highlight-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 0px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@keyframes slideUpRuler {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Kontrolki */
+.input-group {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--button-bg);
+    color: var(--button-primary-bg);
+    padding: 3px 5px;
+}
+
+#urlInput {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    background-color: var(--bg);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#urlInput:focus {
+    outline: none;
+    border-color: var(--highlight-color);
+    box-shadow: 0 0 0 2px var(--highlight-color-light);
+}
+
+.button,
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.button:hover,
+button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.button:disabled,
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.button-primary {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
+    border-color: var(--button-primary-bg);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.button-primary:hover {
+    background-color: var(--button-primary-hover-bg);
+    border-color: var(--button-primary-hover-bg);
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    padding: 4px;
+    border-radius: var(--border-radius);
+}
+
+.icon-button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.editor-controls {
+    padding: 8px 12px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--panel-bg);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+#updatePreviewButton {
+    background-color: var(--on-surface-bg);
+    color: var(--on-surface-text);
+    border-color: var(--resizer-color);
+}
+
+#updatePreviewButton:hover {
+    background-color: var(--button-primary-hover-bg);
+    border-color: var(--button-primary-hover-bg);
+}
+
+#updatePreviewButton:active {
+    opacity: 0.7;
+}
+
+#languageSelector {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--bg);
+    color: var(--text-color);
+    font-size: 0.85rem;
+}
+
+#languageSelector:focus {
+    outline: none;
+    border-color: var(--highlight-color);
+}
+
+/* Loader */
+.loader {
+    border: 3px solid var(--button-primary-text);
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Media query dla urządzeń mobilnych */
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+        height: auto;
+        /* Pozwala na naturalny przepływ treści */
+    }
+
+    .editor-panel,
+    .preview-panel {
+        width: 100% !important;
+        /* Pełna szerokość, !important nadpisuje styl inline */
+        min-width: 0;
+        height: 50vh;
+        /* Dzieli ekran na pół */
+    }
+
+    .preview-panel {
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Ukryj resizer i przycisk ukrywania na mobilnych */
+    .resizer,
+    #toggleEditorButton {
+        display: none;
+    }
+
+    .editor-panel.hidden {
+        height: 0;
+        min-height: 0;
+    }
+
+    .preview-panel.full-width {
+        height: 100vh;
+    }
+
+    header {
+        flex-wrap: wrap;
+    }
+
+    .input-group {
+        width: 100%;
+        order: 2;
+        /* Przesuń na dół */
+        margin-top: 8px;
+    }
+
+    .header-controls-right {
+        order: 1;
+        /* Przesuń na początek */
+        margin-left: auto;
+        /* Dopycha do prawej */
+    }
+}
