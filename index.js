@@ -25,6 +25,43 @@ const themeToggle = document.getElementById('themeToggle');
 const toggleEditorButton = document.getElementById('toggleEditorButton');
 const statusBar = document.getElementById('statusBar');
 const languageSelector = document.getElementById('languageSelector');
+const toggleUrlListButton = document.getElementById('toggleUrlListButton');
+const closeUrlListButton = document.getElementById('closeUrlListButton');
+const urlListPanel = document.getElementById('urlListPanel');
+const addCurrentUrlButton = document.getElementById('addCurrentUrlButton');
+const loadUrlListButton = document.getElementById('loadUrlListButton');
+const urlListItems = document.getElementById('urlListItems');
+
+// Elementy modalu
+const addUrlModal = document.getElementById('addUrlModal');
+const closeModalButton = document.getElementById('closeModalButton');
+const modalUrlInput = document.getElementById('modalUrlInput');
+const modalNameInput = document.getElementById('modalNameInput');
+const modalAddButton = document.getElementById('modalAddButton');
+const modalListUrlInput = document.getElementById('modalListUrlInput');
+const modalLoadListButton = document.getElementById('modalLoadListButton');
+
+// Lista URL - domyślna i załadowana z localStorage
+let savedUrls = JSON.parse(localStorage.getItem('savedUrls') || '[]');
+
+// URL listy do załadowania
+const URL_LIST_SOURCE = 'https://gist.githubusercontent.com/skokivPr/b351264e9a24e4bffbe086c538f5b744/raw/4940e0927529b419ba64aaa6556fd5e7ab4863dd/lista';
+
+// Funkcja do wyodrębnienia nazwy z URL (musi być wcześniej zdefiniowana)
+function extractNameFromUrl(url) {
+    const shortName = url.substring(url.lastIndexOf('/') + 1) || url;
+    return shortName;
+}
+
+// Aktualizuj stare nazwy "URL 1", "URL 2" itp. na nazwy z adresu
+savedUrls = savedUrls.map(item => {
+    // Jeśli nazwa zaczyna się od "URL " i po tym są tylko cyfry, zamień na nazwę z adresu
+    if (/^URL \d+$/.test(item.name)) {
+        return { ...item, name: extractNameFromUrl(item.url) };
+    }
+    return item;
+});
+localStorage.setItem('savedUrls', JSON.stringify(savedUrls));
 
 // Zmienne dla Resizera
 const resizer = document.getElementById('resizer');
@@ -450,4 +487,217 @@ require(['vs/editor/editor.main'], function () {
     // Pierwsze zdefiniowanie motywów po załadowaniu
     defineThemes();
 
-}); 
+    // --- 7. Modal do zarządzania URL ---
+
+    // Funkcje modalu
+    function openModal(tab = 'single') {
+        addUrlModal.classList.add('active');
+
+        // Wypełnij pole URL aktualnym adresem z input
+        if (tab === 'single') {
+            modalUrlInput.value = urlInput.value;
+            modalNameInput.value = '';
+        } else if (tab === 'list') {
+            modalListUrlInput.value = URL_LIST_SOURCE;
+        }
+
+        // Przełącz na odpowiednią zakładkę
+        switchModalTab(tab);
+    }
+
+    function closeModal() {
+        addUrlModal.classList.remove('active');
+        // Wyczyść pola
+        modalUrlInput.value = '';
+        modalNameInput.value = '';
+    }
+
+    function switchModalTab(tabName) {
+        // Usuń aktywną klasę ze wszystkich zakładek i treści
+        document.querySelectorAll('.modal-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.modal-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Aktywuj wybraną zakładkę
+        const tab = document.querySelector(`[data-tab="${tabName}"]`);
+        const content = document.getElementById(tabName === 'single' ? 'tabSingle' : 'tabList');
+
+        if (tab) tab.classList.add('active');
+        if (content) content.classList.add('active');
+    }
+
+    // Event listenery dla modalu
+    closeModalButton.addEventListener('click', closeModal);
+
+    // Zamknij modal po kliknięciu w tło
+    addUrlModal.addEventListener('click', (e) => {
+        if (e.target === addUrlModal) {
+            closeModal();
+        }
+    });
+
+    // Zamknij modal klawiszem Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && addUrlModal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    // Przełączanie zakładek
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            switchModalTab(tab.dataset.tab);
+        });
+    });
+
+    // Dodaj URL z modalu
+    const addUrlFromModal = () => {
+        const url = modalUrlInput.value.trim();
+        if (!url) {
+            showError('Proszę podać URL.');
+            return;
+        }
+
+        // Sprawdź czy URL już istnieje
+        if (savedUrls.some(item => item.url === url)) {
+            showError('Ten URL już istnieje na liście.');
+            return;
+        }
+
+        // Użyj nazwy z pola lub wygeneruj z URL
+        const name = modalNameInput.value.trim() || extractNameFromUrl(url);
+
+        savedUrls.push({ name, url });
+        localStorage.setItem('savedUrls', JSON.stringify(savedUrls));
+        renderUrlList();
+        updateStatus(`Dodano: ${name}`);
+        closeModal();
+    };
+
+    modalAddButton.addEventListener('click', addUrlFromModal);
+
+    // Enter w polach formularza pojedynczego URL
+    modalUrlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addUrlFromModal();
+        }
+    });
+
+    modalNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addUrlFromModal();
+        }
+    });
+
+    // Załaduj listę z modalu
+    const loadListFromModal = async () => {
+        const listUrl = modalListUrlInput.value.trim();
+        if (!listUrl) {
+            showError('Proszę podać URL do listy.');
+            return;
+        }
+
+        updateStatus('Ładowanie listy URL...');
+        try {
+            const response = await fetch(listUrl);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const text = await response.text();
+            const lines = text.split('\n').filter(line => line.trim());
+
+            let loadedCount = 0;
+            for (const line of lines) {
+                // Format: nazwa|url lub tylko url
+                const parts = line.split('|');
+                let name, url;
+
+                if (parts.length >= 2) {
+                    name = parts[0].trim();
+                    url = parts[1].trim();
+                } else {
+                    url = parts[0].trim();
+                    name = extractNameFromUrl(url);
+                }
+
+                // Sprawdź czy to jest prawidłowy URL
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    // Sprawdź czy już nie istnieje
+                    if (!savedUrls.some(item => item.url === url)) {
+                        savedUrls.push({ name, url });
+                        loadedCount++;
+                    }
+                }
+            }
+
+            localStorage.setItem('savedUrls', JSON.stringify(savedUrls));
+            renderUrlList();
+            updateStatus(`Załadowano ${loadedCount} nowych URL z listy.`);
+            closeModal();
+        } catch (error) {
+            showError(`Błąd podczas ładowania listy: ${error.message}`);
+        }
+    };
+
+    modalLoadListButton.addEventListener('click', loadListFromModal);
+
+    // Enter w polu URL listy
+    modalListUrlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            loadListFromModal();
+        }
+    });
+
+    // --- 8. Panel z listą URL ---
+
+    // Funkcja do renderowania listy URL
+    function renderUrlList() {
+        if (savedUrls.length === 0) {
+            urlListItems.innerHTML = '<div class="url-list-empty">Brak zapisanych adresów URL.<br>Dodaj aktualny URL lub załaduj listę.</div>';
+            return;
+        }
+
+        urlListItems.innerHTML = savedUrls.map((item, index) => `
+                    <button class="url-item" data-index="${index}" title="${item.url}">
+                        <span class="url-item-name">${item.name || 'Bez nazwy'}</span>
+                    </button>
+                `).join('');
+
+        // Dodaj event listenery dla przycisków
+        document.querySelectorAll('.url-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const index = parseInt(item.dataset.index);
+                urlInput.value = savedUrls[index].url;
+                urlListPanel.classList.remove('active');
+                updateStatus(`Załadowano URL: ${savedUrls[index].name || 'Bez nazwy'}`);
+            });
+        });
+    }
+
+    // Toggle panel
+    toggleUrlListButton.addEventListener('click', () => {
+        urlListPanel.classList.toggle('active');
+        if (urlListPanel.classList.contains('active')) {
+            renderUrlList();
+        }
+    });
+
+    closeUrlListButton.addEventListener('click', () => {
+        urlListPanel.classList.remove('active');
+    });
+
+    // Przyciski otwierające modal
+    addCurrentUrlButton.addEventListener('click', () => {
+        openModal('single');
+    });
+
+    loadUrlListButton.addEventListener('click', () => {
+        openModal('list');
+    });
+
+    // Renderuj listę przy starcie
+    renderUrlList();
+
+});
