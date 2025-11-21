@@ -20,6 +20,7 @@ const fetchButton = document.getElementById('fetchButton');
 const buttonText = document.getElementById('buttonText');
 const loader = document.getElementById('loader');
 const updatePreviewButton = document.getElementById('updatePreviewButton');
+const stopPreviewButton = document.getElementById('stopPreviewButton');
 const previewFrame = document.getElementById('previewFrame');
 const themeToggle = document.getElementById('themeToggle');
 const toggleEditorButton = document.getElementById('toggleEditorButton');
@@ -353,6 +354,16 @@ require(['vs/editor/editor.main'], function () {
         updateStatus("Zaktualizowano podgląd.");
     });
 
+    // 2a. Przycisk Zatrzymaj Podgląd
+    if (stopPreviewButton) {
+        stopPreviewButton.addEventListener('click', () => {
+            previewFrame.srcdoc = ''; // Wyczyść zawartość
+            // Alternatywnie można przeładować iframe, aby zatrzymać skrypty:
+            // previewFrame.src = 'about:blank';
+            updateStatus("Podgląd zatrzymany.");
+        });
+    }
+
     // 3. Wybór języka
     languageSelector.addEventListener('change', (e) => {
         const lang = e.target.value;
@@ -624,8 +635,13 @@ require(['vs/editor/editor.main'], function () {
 
                 // Sprawdź czy to jest prawidłowy URL
                 if (url.startsWith('http://') || url.startsWith('https://')) {
-                    // Sprawdź czy już nie istnieje
-                    if (!savedUrls.some(item => item.url === url)) {
+                    // Normalizacja URL do porównania (usuń końcowy slash)
+                    const normalizedUrl = url.replace(/\/$/, '');
+
+                    // Sprawdź czy już nie istnieje (porównanie znormalizowane)
+                    const exists = savedUrls.some(item => item.url.replace(/\/$/, '') === normalizedUrl);
+
+                    if (!exists) {
                         savedUrls.push({ name, url });
                         loadedCount++;
                     }
@@ -660,18 +676,40 @@ require(['vs/editor/editor.main'], function () {
         }
 
         urlListItems.innerHTML = savedUrls.map((item, index) => `
-                    <button class="url-item" data-index="${index}" title="${item.url}">
-                        <span class="url-item-name">${item.name || 'Bez nazwy'}</span>
-                    </button>
-                `).join('');
+            <div class="url-item-wrapper">
+                <button class="url-item" data-index="${index}" title="${item.url}">
+                    <span class="url-item-name">${item.name || 'Bez nazwy'}</span>
+                </button>
+                <button class="url-item-delete" data-index="${index}" title="Usuń">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `).join('');
 
-        // Dodaj event listenery dla przycisków
+        // Dodaj event listenery dla przycisków URL
         document.querySelectorAll('.url-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 const index = parseInt(item.dataset.index);
                 urlInput.value = savedUrls[index].url;
                 urlListPanel.classList.remove('active');
-                updateStatus(`Załadowano URL: ${savedUrls[index].name || 'Bez nazwy'}`);
+                // updateStatus(`Załadowano URL: ${savedUrls[index].name || 'Bez nazwy'}`); // Zastąpione przez status w fetchAndLoadContent
+                fetchAndLoadContent(); // Automatyczne pobranie po wyborze z listy
+            });
+        });
+
+        // Dodaj event listenery dla przycisków usuwania
+        document.querySelectorAll('.url-item-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(btn.dataset.index);
+                const name = savedUrls[index].name || 'Bez nazwy';
+
+                if (confirm(`Czy na pewno usunąć "${name}"?`)) {
+                    savedUrls.splice(index, 1);
+                    localStorage.setItem('savedUrls', JSON.stringify(savedUrls));
+                    renderUrlList();
+                    updateStatus(`Usunięto: ${name}`);
+                }
             });
         });
     }
@@ -701,6 +739,5 @@ require(['vs/editor/editor.main'], function () {
     renderUrlList();
 
 });
-
 
 
