@@ -1,41 +1,67 @@
 /* Zmienne motywu */
 :root {
-    --bg: #f8f9fa;
+    --bg: #faf9f7;
     --panel-bg: #ffffff;
-    --text-color: #212529;
-    --text-muted: #6c757d;
+    --text-color: #1c1b1b;
+    --text-muted: #7c7c7c;
+    --text-dark: #000000;
     --highlight-color: #ff7300;
-    --border-color: #dee2e6;
-    --card-bg: #f8f9fa;
-    --status-active-bg: #28a745;
-    --border-radius: 0px;
-    --button-bg: #f1f3f5;
-    --button-hover-bg: #e9ecef;
-    --button-primary-bg: #ff7300;
-    --button-primary-hover-bg: #e66800;
-    --button-text: #212529;
-    --button-primary-text: #ffffff;
-    --resizer-color: #dee2e6;
-    --resizer-hover-color: #ff7300;
+    --highlight-color-darker: #e65c00;
+    --border-color: #d6d4d1;
+    --border-color-hover: #c9c7c1;
+    --card-bg: #f5f5f4;
+    --danger-color: #d92336;
+    --danger-rgb: 217, 35, 54;
+    --success-rgb: 40, 167, 69;
+    --success-color: #28a745;
+    --bg-rgb: 250, 249, 247;
+    --input-bg: var(--bg);
+    --input-hover: var(--highlight-color);
+    --input-border: var(--border-color);
+    --input-focus: var(--highlight-color);
+    --select-shadow: 0 0 0 2px rgba(255, 115, 0, 0.2);
+    --button-hover-filter: invert(0.5) brightness(0.5) contrast(0.5) saturate(0.5) hue-rotate(180deg);
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --backdrop-rgb: 0, 0, 0;
+    --orange-rgb: 255, 115, 0;
+    --default-rgb: 0, 0, 0;
+    --button-hover-box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.5);
+    --card-file-name-color: 0, 123, 255;
 }
 
 :root[theme="dark"] {
     --bg: #121212;
-    --panel-bg: #1a1a1a;
-    --text-color: #e9ecef;
+    --panel-bg: #000000;
+    --text-color: #ffffff;
     --text-muted: #8d8d8d;
+    --text-dark: #000000;
     --highlight-color: #ff7300;
-    --border-color: #2a2a2a;
+    --highlight-color-darker: #e65c00;
+    --border-color: #242424;
+    --border-color-hover: #333333;
     --card-bg: #1a1a1a;
-    --status-active-bg: var(--highlight-color);
-    --button-bg: #2a2a2a;
-    --button-hover-bg: #343a40;
-    --button-primary-bg: #ff7300;
-    --button-primary-hover-bg: #e66800;
-    --button-text: #e9ecef;
-    --button-primary-text: #ffffff;
-    --resizer-color: #2a2a2a;
-    --resizer-hover-color: #ff7300;
+    --danger-color: #dc3545;
+    --danger-rgb: 220, 53, 69;
+    --success-rgb: 40, 167, 69;
+    --success-color: #28a745;
+    --bg-rgb: 18, 18, 18;
+    --input-bg: var(--bg);
+    --input-hover: var(--highlight-color);
+    --input-border: var(--border-color);
+    --input-focus: var(--highlight-color);
+    --select-shadow: 0 0 0 2px rgba(255, 115, 0, 0.2);
+    --button-hover-filter: invert(1);
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --backdrop-rgb: 0, 0, 0;
+    --orange-rgb: 255, 115, 0;
+
+    --button-hover-box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.5);
+
+    --default-rgb: 255, 255, 255;
+    --card-file-name-color: 255, 217, 0;
+
 }
 
 /* Ogólne style */
@@ -172,7 +198,7 @@ header {
 
 .resizer:hover,
 .resizer.is-dragging {
-    background-color: var(--resizer-hover-color);
+    background-color: var(--highlight-color);
     box-shadow: 0 0 2px var(--resizer-hover-color);
 }
 
@@ -405,9 +431,9 @@ header {
     width: 100%;
     min-height: 36px;
     padding: 8px 16px;
-    background-color: var(--button-bg);
-    color: var(--button-text);
     border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-muted);
     border-radius: var(--border-radius);
     font-size: 0.9rem;
     font-weight: 600;
@@ -417,7 +443,11 @@ header {
 }
 
 .url-item:hover {
-    background-color: var(--bg);
+    background: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: var(--box-shadow);
 
 }
 
@@ -451,8 +481,6 @@ header {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
     display: none;
     align-items: center;
     justify-content: center;
@@ -465,7 +493,7 @@ header {
 }
 
 .modal-container {
-    background-color: var(--panel-bg);
+    background-color: var(--card-bg);
     width: 90%;
     max-width: 500px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -478,6 +506,7 @@ header {
     align-items: center;
     padding: 0.5rem 1rem;
     border-bottom: 1px solid var(--border-color);
+    background-color: var(--panel-bg);
 }
 
 .modal-header h3 {
@@ -504,8 +533,9 @@ header {
     padding: 8px 16px;
     background: none;
     border: none;
-    border-bottom: 3px solid transparent;
+    border-bottom: 2px solid var(--border-color);
     color: var(--text-muted);
+    background: var(--bg);
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -517,13 +547,19 @@ header {
 }
 
 .modal-tab:hover {
+    background: var(--card-bg);
+    opacity: 0.9;
     color: var(--text-color);
-    background-color: var(--button-hover-bg);
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+
 }
 
 .modal-tab.active {
-    color: var(--highlight-color);
-    border-bottom-color: var(--highlight-color);
+    color: var(--text-color);
+    border-bottom: 2px solid var(--highlight-color);
+    box-shadow: var(--box-shadow);
+    background: var(--panel-bg);
 }
 
 .modal-tab-content {
@@ -561,8 +597,9 @@ header {
 
 .form-group input[type="text"]:focus {
     outline: none;
-    border-color: var(--highlight-color);
-    box-shadow: 0 0 0 3px rgba(255, 115, 0, 0.1);
+    border-bottom-color: var(--highlight-color);
+    background-color: var(--panel-bg);
+    box-shadow: var(--box-shadow);
 }
 
 .form-hint {
@@ -620,11 +657,13 @@ header {
     background-color: var(--bg);
     color: var(--text-color);
     font-size: 0.9rem;
+    transition: 0.30s ease;
 }
 
 #urlInput:focus {
     outline: none;
-    border-color: var(--highlight-color);
+    border-bottom-color: var(--highlight-color);
+    background-color: var(--panel-bg);
 }
 
 /* Bazowe style przycisków */
@@ -637,18 +676,29 @@ button {
     min-height: 36px;
     padding: 8px 16px;
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg);
-    color: var(--button-text);
+    background-color: var(--card-bg);
+    color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    transition: 0.30s ease;
+
 }
 
 .button:hover,
 button:hover {
-    background-color: var(--button-hover-bg);
+    background: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: var(--box-shadow);
+}
+
+.button:active,
+button:active {
+    box-shadow: var(--o-box-shadow-active);
+    color: var(--status-active-bg)
 }
 
 .button:disabled,
@@ -658,18 +708,26 @@ button:disabled {
 }
 
 .button-primary {
-    background-color: var(--button-primary-bg);
-    color: var(--button-primary-text);
-    border-color: var(--button-primary-bg);
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-muted);
+
 }
 
 .button-primary:hover {
-    background-color: var(--button-primary-hover-bg);
-    border-color: var(--button-primary-hover-bg);
+    background: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: var(--box-shadow);
 }
 
 .button-secondary:hover {
-    background-color: var(--button-bg);
+    background: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: var(--box-shadow);
 }
 
 .button-small {
@@ -693,11 +751,15 @@ button:disabled {
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: 0.30s ease;
 }
 
 .icon-button:hover {
-    background-color: var(--button-hover-bg);
+    background: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: var(--box-shadow);
 }
 
 .editor-controls {
@@ -709,14 +771,17 @@ button:disabled {
 }
 
 #updatePreviewButton {
-    background-color: var(--on-surface-bg);
-    color: var(--on-surface-text);
-    border-color: var(--resizer-color);
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-muted);
 }
 
 #updatePreviewButton:hover {
-    background-color: var(--button-primary-hover-bg);
-    border-color: var(--button-primary-hover-bg);
+    background: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: var(--box-shadow);
 }
 
 #updatePreviewButton:active {
@@ -810,4 +875,48 @@ button:disabled {
         margin-left: auto;
         /* Dopycha do prawej */
     }
+}
+
+/* New styles for URL list items with delete button */
+.url-item-wrapper {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    align-items: center;
+}
+
+.url-item-wrapper .url-item {
+    flex-grow: 1;
+    width: auto;
+}
+
+.url-item-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--card-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.url-item-delete:hover {
+    background-color: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--danger-color);
+    border-color: var(--border-color);
+}
+
+/* Dark mode adjustment */
+:root[theme="dark"] .url-item-delete:hover {
+    background-color: var(--panel-bg);
+    opacity: 0.9;
+    color: var(--danger-color);
+    border-color: var(--border-color);
 }
