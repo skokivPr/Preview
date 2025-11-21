@@ -91,7 +91,7 @@ html {
 header {
     display: flex;
     align-items: center;
-    padding: 0.2rem 0.5rem;
+    padding: 0.2rem 0.2rem;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--panel-bg);
     gap: 12px;
@@ -920,4 +920,5 @@ button:disabled {
     color: var(--danger-color);
     border-color: var(--border-color);
 }
+
 
