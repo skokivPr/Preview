@@ -46,7 +46,7 @@ const modalLoadListButton = document.getElementById('modalLoadListButton');
 let savedUrls = JSON.parse(localStorage.getItem('savedUrls') || '[]');
 
 // URL listy do załadowania
-const URL_LIST_SOURCE = 'https://gist.githubusercontent.com/skokivPr/b351264e9a24e4bffbe086c538f5b744/raw/c5bb9ecb9ba9679da95586e2297e153cba65d4df/lista';
+const URL_LIST_SOURCE = 'https://gist.githubusercontent.com/skokivPr/b351264e9a24e4bffbe086c538f5b744/raw/56eab00bfa50e3ed2ff9624a1c3f409ddaaea5cd/lista';
 
 // Funkcja do wyodrębnienia nazwy z URL (musi być wcześniej zdefiniowana)
 function extractNameFromUrl(url) {
@@ -739,5 +739,6 @@ require(['vs/editor/editor.main'], function () {
     renderUrlList();
 
 });
+
 
 
