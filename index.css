@@ -1,4 +1,4 @@
-  /* --- SYSTEM VARIABLES [THEME CONFIG] --- */
+ /* --- SYSTEM VARIABLES [THEME CONFIG] --- */
         :root {
             /* LIGHT MODE: Platinum High-Detail */
             --bg-color: #f8f9fa;
@@ -8,28 +8,29 @@
             --highlight: #ff7300;
             --border-color: #dee2e6;
             --border-color-hover: #ccc;
+
             --shadow-drop:
-                0.5px 0.5px 0px #d1d5db,
-                1px 1px 0px #d1d5db,
-                1.5px 1.5px 0px #d1d5db,
-                2px 2px 0px #d1d5db,
-                2.5px 2.5px 0px #d1d5db,
-                3px 3px 0px #d1d5db,
-                4px 4px 8px rgba(163, 177, 198, 0.4),
-                -1px -1px 2px rgba(255, 255, 255, 0.8);
+                rgba(0, 0, 0, 0.3) 0px 1px 2px 0px, rgba(78, 78, 78, 0.185) 0px 2px 6px 2px;
 
             --shadow-inset:
-                inset 2px 2px 5px rgba(163, 177, 198, 0.5),
-                inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+                inset rgba(78, 78, 78, 0.185) 0px 2px 6px 2px, inset rgba(0, 0, 0, 0.3) 0px 1px 2px 0px;
+
+            --shadow-button: rgba(0, 0, 0, 0.3) 0px 1px 2px 0px, rgba(78, 78, 78, 0.185) 0px 2px 6px 2px;
+
 
             --screen-bg: #f0f0f0;
             --screen-border: #adb5bd;
             --led-green: #28a745;
-            --led-yellow: #ff7300;
+            --danger-color: #dc3545;
             --metal-gradient: linear-gradient(145deg, #f3f4f6 0%, #d1d5db 100%);
 
-            /* Danger Colors */
-            --danger-color: #dc3545;
+            /* Syntax Highlighting Light */
+            --json-key: #0984e3;
+            --json-string: #00b894;
+            --json-number: #d63031;
+            --json-boolean: #6c5ce7;
+            --json-null: #b2bec3;
+            --json-yellow: #d39e00;
         }
 
         :root[theme="dark"] {
@@ -38,30 +39,33 @@
             --panel-bg: #212121;
             --text-color: #e9ecef;
             --text-muted: #8d8d8d;
+            --highlight: #ff7300;
             --border-color: #2a2a2a;
             --border-color-hover: #444;
-            --highlight: #ff7300;
+
             --shadow-drop:
-                0.5px 0.5px 0px #1a1a1a,
-                1px 1px 0px #1a1a1a,
-                1.5px 1.5px 0px #1a1a1a,
-                2px 2px 0px #111111,
-                2.5px 2.5px 0px #111111,
-                3px 3px 0px #050505,
-                6px 6px 12px rgba(0, 0, 0, 0.8);
+                rgba(32, 32, 32, 0.4) 0px 0px 0px 2px, rgba(0, 0, 0, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 
             --shadow-inset:
-                inset 4px 4px 10px rgba(0, 0, 0, 0.9),
-                inset -1px -1px 3px rgba(255, 255, 255, 0.05);
+                inset 0px 0px 0px 2px rgba(32, 32, 32, 0.4),
+                inset 0px 4px 6px -1px rgba(0, 0, 0, 0.65),
+                inset 0px 1px 0px rgba(255, 255, 255, 0.08);
 
-            --screen-bg: #050505;
+            --shadow-button: rgba(32, 32, 32, 0.4) 0px 0px 0px 2px, rgba(0, 0, 0, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+
+            --screen-bg: #0d0d0d;
             --screen-border: #2a2a2a;
-            --led-green: #28a745;
-            --led-yellow: #ff7300;
-            --metal-gradient: linear-gradient(135deg, #222 0%, #000 100%);
-
-            /* Danger Colors */
+            --led-green: #2ecc71;
             --danger-color: #ff003c;
+            --metal-gradient: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+
+            /* Syntax Highlighting Dark */
+            --json-key: #74b9ff;
+            --json-string: #55efc4;
+            --json-number: #ff7675;
+            --json-boolean: #a29bfe;
+            --json-null: #dfe6e9;
+            --json-yellow: #ad8200;
         }
 
         /* --- BASE STYLES --- */
@@ -102,10 +106,15 @@
             flex-shrink: 0;
             display: flex;
             align-items: center;
-            height: 70px;
+            height: 50px;
             border: 1px solid var(--border-color);
             justify-content: space-between;
             position: relative;
+        }
+
+        ::selection {
+            background: var(--border-color);
+            color: var(--text-color);
         }
 
         /* Decorative Screws for Header */
@@ -166,7 +175,7 @@
             height: 100%;
             background: var(--bg-color);
             border: none;
-            color: var(--text-color);
+            color: var(--json-yellow);
             font-family: "Share Tech Mono", monospace;
             padding: 0 16px;
             outline: none;
@@ -178,7 +187,7 @@
 
         input[type="text"]:focus {
             border-bottom-color: var(--highlight);
-            color: var(--highlight);
+            color: var(--text-muted);
         }
 
         input[type="text"]::placeholder {
@@ -206,6 +215,7 @@
             padding: 0 15px;
             gap: 8px;
         }
+
 
         .btn-base:hover {
             background: var(--bg-color);
@@ -236,6 +246,65 @@
 
         .btn-add {
             color: var(--led-green);
+        }
+
+        /* --- ICON COLORS --- */
+        .btn-base i {
+            transition: color 0.2s;
+            color: var(--text-muted) !important;
+        }
+
+        .btn-base:hover i {
+            color: var(--highlight) !important;
+        }
+
+        .btn-fetch i,
+        .btn-highlight i {
+            color: var(--highlight);
+        }
+
+        .btn-danger i {
+            color: var(--text-muted);
+        }
+
+        .btn-danger:hover i {
+            color: var(--danger-color) !important;
+        }
+
+        .btn-add i {
+            color: var(--led-green);
+        }
+
+        .btn-icon i {
+            color: var(--text-muted);
+        }
+
+        .btn-icon:hover i {
+            color: var(--text-color);
+        }
+
+        .btn-base:hover i {
+            color: inherit;
+        }
+
+        /* Specific icon colors in URL items */
+        .url-item i.fa-trash {
+            color: var(--danger-color);
+        }
+
+        .url-item:hover i.fa-trash {
+            color: var(--danger-color);
+        }
+
+        /* Logo icon */
+        .logo i {
+            color: var(--highlight);
+        }
+
+        /* Status bar and panel icons */
+        .panel-header i,
+        .status-bar i {
+            color: var(--text-muted);
         }
 
         /* --- WORKSPACE --- */
@@ -530,11 +599,22 @@
             border: 1px solid var(--border-color);
             cursor: pointer;
             transition: 0.2s;
+            color: var(--text-muted);
+        }
+
+        .url-item i {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .url-item i:hover {
+            color: var(--text-muted) !important;
         }
 
         .url-item:hover {
-            border-bottom-color: var(--highlight);
             background: var(--bg-color);
+            background-image: linear-gradient(135deg, var(--screen-bg) 25%, transparent 25%, transparent 50%, var(--screen-bg) 50%, var(--screen-bg) 75%,
+                    transparent 75%, transparent);
+            background-size: 10px 10px;
             color: var(--text-color);
         }
 
@@ -611,9 +691,9 @@
 
         .modal-tab.active {
             background: var(--bg-color);
-            color: var(--text-color);
+            color: var(--highlight);
             box-shadow: var(--shadow-inset);
-            border-color: var(--highlight);
+            border-color: var(--border-color);
         }
 
         .modal-field-group {
@@ -641,17 +721,22 @@
         }
 
         .modal-container-danger {
-            border-color: var(--danger-color);
+            border-color: var(--border-color);
+
         }
 
         .modal-header-danger {
             color: var(--danger-color);
+
         }
 
         .modal-alert-text {
             color: var(--danger-color);
             font-weight: bold;
             font-size: 1.1rem;
+            background-image: linear-gradient(135deg, var(--screen-bg) 25%, transparent 25%, transparent 50%, var(--screen-bg) 50%, var(--screen-bg) 75%,
+                    transparent 75%, transparent);
+            background-size: 10px 10px;
         }
 
         /* --- UTILS --- */
